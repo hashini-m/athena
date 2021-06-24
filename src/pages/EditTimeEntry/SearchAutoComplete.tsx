@@ -1,12 +1,18 @@
-import React from "react";
+import React, {FC} from "react";
 
 import {useState, useEffect} from "react";
 import axios from "axios";
 import "./SearchAutoComplete.css";
 
-function SearchAutoComplete() {
+interface Props {
+    value: string;
+    onSearchChange: (search: string) => void;
+}
+
+const SearchAutoComplete: FC<Props> = (props) => {
+    const {onSearchChange, value} = props;
     const [users, setUsers] = useState<any>([]);
-    const [text, setText] = useState("");
+    const [text, setText] = useState(value);
     const [suggestions, setSuggestions] = useState<any>([]);
 
     useEffect(() => {
@@ -32,6 +38,7 @@ function SearchAutoComplete() {
         }
         console.log("matches", matches);
         setSuggestions(matches);
+        onSearchChange(text);
         setText(text);
     };
 
@@ -41,7 +48,7 @@ function SearchAutoComplete() {
                 type="text"
                 style={{height: 30, margin: 10}}
                 onChange={(e) => onChangeHandler(e.target.value)}
-                value={text}
+                value={value}
                 onBlur={() => {
                     setTimeout(() => {
                         setSuggestions([]);
