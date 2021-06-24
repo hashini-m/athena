@@ -2,11 +2,12 @@ import {Grid, Select, Typography, MenuItem} from "@material-ui/core";
 import React, {useState, useEffect, useCallback} from "react";
 import {TextField, makeStyles} from "@material-ui/core";
 import DateFnsUtils from "@date-io/date-fns";
-import {DatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import {DatePicker, KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import Button from "@material-ui/core/Button";
 import SearchAutoComplete from "./SearchAutoComplete";
 import axios from "axios";
 import EmployeeTable from "./EmployeeTable";
+import moment from 'moment'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -30,8 +31,8 @@ const EmployeeForm = () => {
         //form values
         email: "",
         teamId: null,
-        fromDate: null,
-        toDate: null,
+        fromDate: (new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000))).toLocaleDateString(),
+        toDate: new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000)).toLocaleDateString(),
     });
     const [teams, setTeams] = useState<Team[]>();
     const [tableData, setTableData] = useState<any[]>();
@@ -54,7 +55,12 @@ const EmployeeForm = () => {
     }, []);
 
     const search = useCallback(async () => {
-        await axios.get("http://localhost:3004/users", {params: 1}) // pass values instead of {params: 1}. It contains all the params inside
+        console.log('values obj: ' + JSON.stringify(values));
+        await axios.get(`http://localhost:3004/users`, {
+            params: {
+                values
+            }
+        })
             .then((res: any) => {
                 setTableData(res.data);
             })
@@ -62,6 +68,26 @@ const EmployeeForm = () => {
     }, [values]);
 
     const classes = useStyles();
+
+    const formatDate = (date: any) => {
+        let d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    const validateDate = (date: any) => {
+        const selectedDate = new Date(date);
+        const today = new Date();
+        return !(selectedDate.getDate() > today.getDate()) && (today.getDate() - selectedDate.getDate()) >= 2;
+    }
 
     return (
         <>
@@ -90,7 +116,11 @@ const EmployeeForm = () => {
                                 value={values.fromDate}
                                 format="dd/MM/yyyy"
                                 onChange={(date: any) => {
-                                    setValues({...values, fromDate: date});
+                                    validateDate(date) ?
+                                        setValues({
+                                            ...values,
+                                            fromDate: formatDate(date)
+                                        }) : alert('From-date must be smaller than 2 days from today');
                                     console.log(date);
                                 }}
                             />
@@ -101,7 +131,11 @@ const EmployeeForm = () => {
                                 value={values.toDate}
                                 format="dd/MM/yyyy"
                                 onChange={(date: any) => {
-                                    setValues({...values, toDate: date});
+                                    validateDate(date) ?
+                                        setValues({
+                                            ...values,
+                                            toDate: formatDate(date)
+                                        }) : alert('To-date must be smaller than 2 days from today');
                                     console.log(date);
                                 }}
                             />
@@ -112,7 +146,15 @@ const EmployeeForm = () => {
                             <Button variant="contained" color="primary" onClick={() => search()}>
                                 Search
                             </Button>
-                            <Button variant="contained">Reset</Button>
+                            <Button variant="contained" onClick={() => {
+                                setValues({
+                                    email: "",
+                                    teamId: null,
+                                    fromDate: (new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000))).toLocaleDateString(),
+                                    toDate: new Date(new Date().getTime() - (2 * 24 * 60 * 60 * 1000)).toLocaleDateString(),
+                                });
+                                setTableData(undefined);
+                            }}>Reset</Button>
                         </div>
                     </Grid>
                 </Grid>
