@@ -28,13 +28,13 @@ type Team = {
 const EmployeeForm = () => {
     const [values, setValues] = useState({
         //form values
-        id: 0,
         email: "",
         teamId: null,
         fromDate: null,
         toDate: null,
     });
     const [teams, setTeams] = useState<Team[]>();
+    const [tableData, setTableData] = useState<any[]>();
 
     useEffect(() => {
         fetchTeams();
@@ -52,6 +52,14 @@ const EmployeeForm = () => {
             })
             .catch(e => console.error('Error: ' + e));
     }, []);
+
+    const search = useCallback(async () => {
+        await axios.get("http://localhost:3004/users", {params: 1}) // pass values instead of {params: 1}. It contains all the params inside
+            .then((res: any) => {
+                setTableData(res.data);
+            })
+            .catch(e => console.error('Error: ' + e));
+    }, [values]);
 
     const classes = useStyles();
 
@@ -101,14 +109,14 @@ const EmployeeForm = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <div className={classes.root}>
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" color="primary" onClick={() => search()}>
                                 Search
                             </Button>
                             <Button variant="contained">Reset</Button>
                         </div>
                     </Grid>
                 </Grid>
-                <EmployeeTable values={'ss'} />
+                {tableData != undefined && tableData?.length > 0 ? <EmployeeTable values={tableData}/> : <div/>}
             </form>
             {/* <EmployeeTable /> */}
         </>

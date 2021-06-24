@@ -1,71 +1,51 @@
-import React, {FC} from "react";
-import { DataGrid } from '@material-ui/data-grid';
+import React, {FC, useState} from "react";
+import {DataGrid} from '@material-ui/data-grid';
 
 interface Props {
     values: any;
 }
 
 const columns = [
-    {field: 'name', headerName: 'Name', width: 180, editable: true},
-    {field: 'age', headerName: 'Age', type: 'number', editable: true},
+    {field: 'employee', headerName: 'Employee', width: 180, editable: false},
+    {field: 'team', headerName: 'Team', width: 100, editable: false},
     {
-        field: 'dateCreated',
-        headerName: 'Date Created',
+        field: 'date',
+        headerName: 'Date',
         type: 'date',
         width: 180,
+        editable: false,
+    },
+    {
+        field: 'startTime',
+        headerName: 'Start Time',
+        type: 'dateTime',
+        width: 220,
         editable: true,
     },
     {
-        field: 'lastLogin',
-        headerName: 'Last Login',
+        field: 'endTime',
+        headerName: 'End Time',
         type: 'dateTime',
         width: 220,
         editable: true,
     },
 ];
 
-const rows = [
-    {
-        id: 1,
-        name: 'Bruce Wayne',
-        age: 25,
-        dateCreated: '2021-06-12',
-        lastLogin: '2021-06-25',
-    },
-    {
-        id: 2,
-        name: 'Bruce Wayne',
-        age: 36,
-        dateCreated: '2021-06-12',
-        lastLogin: '2021-06-25',
-    },
-    {
-        id: 3,
-        name: 'Bruce Wayne',
-        age: 19,
-        dateCreated: '2021-06-12',
-        lastLogin: '2021-06-25',
-    },
-    {
-        id: 4,
-        name: 'Bruce Wayne',
-        age: 28,
-        dateCreated: '2021-06-12',
-        lastLogin: '2021-06-25',
-    },
-    {
-        id: 5,
-        name: 'Bruce Wayne',
-        age: 23,
-        dateCreated: '2021-06-12',
-        lastLogin: '2021-06-25',
-    },
-];
-
 const EmployeeTable: FC<Props> = (props) => {
+    const {values} = props;
+    const [tableData, setTableData] = useState<any[]>(values.map((e: any) => ({
+        'id': e.id,
+        'employee': e.email,
+        'team': e.team,
+        'date': e.date,
+        'startTime': e.startTime,
+        'endTime': e.endTime,
+    })));
+
+
     return (
         <div style={{height: 300, width: '100%'}}>
-            <DataGrid rows={rows} columns={columns}/>
+            <DataGrid rows={tableData} columns={columns}/>
         </div>
     );
 }
