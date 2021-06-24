@@ -1,0 +1,11 @@
+export const USER_ACTION_TYPES = {
+    GET_USER_DETAIL: "GET_USER_DETAIL",
+    AUTHORIZE_USER: "AUTHORIZE_USER"
+}
+
+export const COMMON_ACTION_TYPES = {
+    REQUEST: "_REQUEST",
+    SUCCESS: "_SUCCESS",
+    ERROR: "_ERROR",
+    CLEAR: "_CLEAR",
+};
